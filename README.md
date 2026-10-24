@@ -86,7 +86,7 @@ python3 ~/Documents/Arduino/libraries/LottieMCU/tools/lottie2mcu.py my_anim.json
 1. **Convert your animation** (Python 3, standard library only):
 
    ```
-   python3 tools/lottie2mcu.py my_anim.json -o my_anim.h -n my_anim --size 320x240
+   python tools/lottie2mcu.py my_anim.json -o my_anim.h -n my_anim --size 320x240
    ```
 
    `--size` is your display resolution. It only matters for animations with image layers
@@ -131,7 +131,39 @@ file contents in RAM to `begin()` — see `examples/ESP32_LittleFS`.
 | `EcoGreenBulb` | An all-vector light bulb filling with green light as a vine grows around it (source in `extras/eco_green_bulb`) |
 | `Adafruit_GFX_ST7789` | Same with Adafruit_GFX (works on SAMD21 with the small memory profile) |
 | `ESP32_LittleFS` | Loading `.lmc` files from the filesystem, PSRAM if present |
+| `LVGL_Canvas` | Animation inside an LVGL 9 canvas, next to regular LVGL widgets |
 | `Benchmark` | No display needed: render time per frame and buffer usage, to size `Config` |
+
+## Using with LVGL
+
+LottieMCU works inside LVGL 9 apps: it renders into the buffer of an LVGL canvas, and an
+LVGL timer advances the animation and invalidates the canvas. See `examples/LVGL_Canvas`.
+
+```cpp
+static void lottieFlush(int16_t x, int16_t y, uint16_t w, uint16_t h, const uint16_t *px, void *) {
+  memcpy(&animBuf[(uint32_t)y * ANIM_SIZE + x], px, (size_t)w * h * 2);
+}
+
+canvas = lv_canvas_create(lv_screen_active());
+lv_canvas_set_buffer(canvas, animBuf, ANIM_SIZE, ANIM_SIZE, LV_COLOR_FORMAT_RGB565);
+lottie.begin(my_anim, ANIM_SIZE, ANIM_SIZE);
+lottie.setFlush(lottieFlush);
+lv_timer_create(animTimer, 33, nullptr);   // animTimer: renderFrame() + lv_obj_invalidate(canvas)
+```
+
+Things to know:
+
+- **Memory:** LVGL keeps the canvas image in RAM: width × height × 2 bytes (51 KB at
+  160×160). On ESP32 with PSRAM, allocate it there (`ps_malloc`); the example does this.
+- **Background:** the canvas is opaque. Set `setBackground()` to the colour behind the canvas
+  (e.g. `lv_color_to_u16(lv_color_hex(0x14141E))`) so it blends in.
+- **Byte order:** LVGL 9's `RGB565` matches LottieMCU's output as is. On LVGL 8 with
+  `LV_COLOR_16_SWAP 1`, call `lottie.setSwapBytes(true)`.
+- **`lv_conf.h`:** needs `LV_COLOR_DEPTH 16` and `LV_USE_CANVAS 1` (both LVGL 9 defaults).
+- **vs. LVGL's `lv_lottie`:** LVGL 9.1+ has its own Lottie widget based on ThorVG. It parses
+  JSON on the device and renders to a 32-bit ARGB buffer, so it needs considerably more RAM
+  and flash; LottieMCU is lighter and adds image-layer support, `lv_lottie` offers native
+  transparency.
 
 ## Converter reference (`tools/lottie2mcu.py`)
 
@@ -317,6 +349,16 @@ Pillow (`pip install pillow`), which is also used for higher-quality resampling 
 Images cost flash: a 240×240 display showing a few large images typically needs 50–150 KB.
 `--image-scale 0.5` halves the resolution (a quarter of the flash) if you need to save space.
 Images used as track mattes contribute their rectangle (their transparency is ignored).
+
+## How it was verified
+
+The renderer was compared frame by frame against two reference implementations — rlottie
+(Samsung) and python-lottie (which follows lottie-web) — on the 93 sample animations in the
+rlottie repository: 86 match at least one reference with a mean pixel difference under 3/255.
+The rest use unsupported features (merge paths, dashes) or differ where the two references
+also disagree. Image layers match rlottie to within ~2/255 on simple scenes; on heavily
+downscaled illustrations LottieMCU's pre-filtered images are smoother than rlottie's output.
+It builds without warnings for ESP32 (with and without PSRAM), RP2040, SAMD21 and STM32F4.
 
 ## Binary format
 

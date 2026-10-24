@@ -13,6 +13,8 @@ This project follows [Semantic Versioning](https://semver.org/).
   PSRAM when present; `psramUsed()` reports how much.
 - `Stats::overflowGradients` and `Stats::overflowImages`.
 - `LOTTIEMCU_VERSION` macros; `lottie2mcu.py --version`.
+- `LVGL_Canvas` example: plays an animation inside an LVGL 9 canvas alongside regular LVGL
+  widgets, and a README section "Using with LVGL".
 
 ### Changed
 - When more gradients are visible than `maxGradients`, the extra ones now fall back to the

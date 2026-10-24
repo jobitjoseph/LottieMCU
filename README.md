@@ -19,13 +19,13 @@ else with a C++11 Arduino core and enough RAM.
   <img src="extras/eco_green_bulb/preview.gif" alt="Demo frames rendered by LottieMCU">
 </p>
 
-![demo frames rendered by LottieMCU](extras/demo_animation/eco_green_bulb_frames.png)
+![frames rendered by LottieMCU](extras/eco_green_bulb/eco_green_bulb_frames.png)
 
 <p align="center">
   <img src="extras/demo_animation/demo_spinner.gif" alt="Demo frames rendered by LottieMCU">
 </p>
 
-![demo frames rendered by LottieMCU](extras/demo_animation/preview.png)
+![frames rendered by LottieMCU](extras/demo_animation/preview.png)
 
 - **No JSON on the device.** A PC-side converter turns the Lottie `.json` into a compact binary
   (typically 10–25 % of the JSON size) that plays straight from flash/PROGMEM, or from a file.

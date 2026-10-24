@@ -375,7 +375,7 @@ When reporting a rendering problem, please attach the Lottie `.json` and the con
 
 ## Author
 
-**Jobit Joseph** — [github.com/jobitjoseph](https://github.com/jobitjoseph) · jobitjoseph1@gmail.com
+**Jobit Joseph** — [github.com/jobitjoseph](https://github.com/jobitjoseph)
 
 ## License
 

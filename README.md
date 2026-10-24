@@ -7,7 +7,7 @@
 
 A minimal-footprint [Lottie](https://airbnb.io/lottie/) animation player for Arduino-compatible
 microcontrollers: ESP32 (all variants), RP2040, STM32, SAMD51/SAMD21, nRF52, Teensy and anything
-else with a C++11 Arduino core and enough RAM.
+else with a C++ Arduino core and enough RAM.
 
 <p align="center">
   <a href="https://www.paypal.com/paypalme/jobitjoseph">
@@ -42,15 +42,44 @@ else with a C++11 Arduino core and enough RAM.
 
 ## Installation
 
-- **Arduino IDE:** download the latest release ZIP from
+### Arduino IDE (Library Manager)
+
+1. Open *Tools → Manage Libraries…* (or *Sketch → Include Library → Manage Libraries…*).
+2. Search for **LottieMCU**.
+3. Click **Install**.
+
+The examples then appear under *File → Examples → LottieMCU*.
+
+With Arduino CLI: `arduino-cli lib install LottieMCU`
+
+### Other ways
+
+- **ZIP:** download the latest release from
   [github.com/jobitjoseph/LottieMCU/releases](https://github.com/jobitjoseph/LottieMCU/releases),
   then *Sketch → Include Library → Add .ZIP Library…*
 - **Git:** clone into your Arduino `libraries` folder:
   `git clone https://github.com/jobitjoseph/LottieMCU.git`
 - **PlatformIO:** `lib_deps = https://github.com/jobitjoseph/LottieMCU.git`
 
-The converter lives in `tools/lottie2mcu.py` and needs only Python 3
-(`pip install pillow` is optional, for JPEG images and better image scaling).
+### The converter
+
+Animations are converted on your computer with `tools/lottie2mcu.py`, which is installed with
+the library. After a Library Manager install it is in your sketchbook's `libraries` folder:
+
+| OS | Location |
+|---|---|
+| Windows | `Documents\Arduino\libraries\LottieMCU\tools\` |
+| macOS | `~/Documents/Arduino/libraries/LottieMCU/tools/` |
+| Linux | `~/Arduino/libraries/LottieMCU/tools/` |
+
+(If you changed the sketchbook location in *File → Preferences*, look there instead.)
+
+It needs only Python 3; `pip install pillow` is optional, for JPEG images and better image
+scaling. Run it from that folder, or give the full path:
+
+```
+python3 ~/Documents/Arduino/libraries/LottieMCU/tools/lottie2mcu.py my_anim.json --size 320x240 -o my_anim.h -n my_anim
+```
 
 ## Quick start
 
@@ -99,7 +128,7 @@ file contents in RAM to `begin()` — see `examples/ESP32_LittleFS`.
 | Example | What it shows |
 |---|---|
 | `TFT_eSPI_Basic` | Looping playback on any TFT_eSPI display |
-| `EcoGreenBulb` | An all-vector animation example (source in `extras/eco_green_bulb`) |
+| `EcoGreenBulb` | An all-vector light bulb filling with green light as a vine grows around it (source in `extras/eco_green_bulb`) |
 | `Adafruit_GFX_ST7789` | Same with Adafruit_GFX (works on SAMD21 with the small memory profile) |
 | `ESP32_LittleFS` | Loading `.lmc` files from the filesystem, PSRAM if present |
 | `Benchmark` | No display needed: render time per frame and buffer usage, to size `Config` |
@@ -288,16 +317,6 @@ Pillow (`pip install pillow`), which is also used for higher-quality resampling 
 Images cost flash: a 240×240 display showing a few large images typically needs 50–150 KB.
 `--image-scale 0.5` halves the resolution (a quarter of the flash) if you need to save space.
 Images used as track mattes contribute their rectangle (their transparency is ignored).
-
-## How it was verified
-
-The renderer was compared frame by frame against two reference implementations — rlottie
-(Samsung) and python-lottie (which follows lottie-web) — on the 93 sample animations in the
-rlottie repository: 86 match at least one reference with a mean pixel difference under 3/255.
-The rest use unsupported features (merge paths, dashes) or differ where the two references
-also disagree. Image layers match rlottie to within ~2/255 on simple scenes; on heavily
-downscaled illustrations LottieMCU's pre-filtered images are smoother than rlottie's output.
-It builds without warnings for ESP32 (with and without PSRAM), RP2040, SAMD21 and STM32F4.
 
 ## Binary format
 

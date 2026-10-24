@@ -2,7 +2,7 @@
   "name": "LottieMCU",
   "version": "1.1.0",
   "description": "Minimal-footprint Lottie animation player for microcontrollers (ESP32, RP2040, STM32, SAMD). Anti-aliased strip rendering to RGB565 via a callback, so no framebuffer is needed and any display library works. Supports shapes, strokes, gradients, trim paths, repeaters, masks, track mattes and image layers, with optional PSRAM use on ESP32.",
-  "keywords": "lottie, bodymovin, animation, vector, display, tft, lcd, graphics, rgb565, esp32, rp2040",
+  "keywords": "lottie, bodymovin, animation, vector, display, tft, lcd, graphics, rgb565, lvgl, esp32, rp2040",
   "homepage": "https://github.com/jobitjoseph/LottieMCU",
   "repository": {
     "type": "git",

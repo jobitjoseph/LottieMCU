@@ -86,7 +86,7 @@ python3 ~/Documents/Arduino/libraries/LottieMCU/tools/lottie2mcu.py my_anim.json
 1. **Convert your animation** (Python 3, standard library only):
 
    ```
-   python tools/lottie2mcu.py my_anim.json -o my_anim.h -n my_anim --size 320x240
+   python3 tools/lottie2mcu.py my_anim.json -o my_anim.h -n my_anim --size 320x240
    ```
 
    `--size` is your display resolution. It only matters for animations with image layers

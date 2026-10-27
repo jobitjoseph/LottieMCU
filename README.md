@@ -39,6 +39,8 @@ else with a C++ Arduino core and enough RAM.
 - **PSRAM aware:** on ESP32 boards with PSRAM the large working tables can live there
   (`cfg.usePSRAM`, on by default), keeping internal RAM free.
 - **Small code:** ~13–15 KB of flash on ARM Cortex-M, one `.h` + one `.cpp`, no dependencies.
+- **Browser converter too:** [Lottie Forge](https://github.com/jobitjoseph/LottieForge) makes LottieMCU headers straight from images,
+  GIFs, videos, SVGs or Lottie files, in your browser, with no Python needed.
 
 ## Installation
 
@@ -63,8 +65,28 @@ With Arduino CLI: `arduino-cli lib install LottieMCU`
 
 ### The converter
 
-Animations are converted on your computer with `tools/lottie2mcu.py`, which is installed with
-the library. After a Library Manager install it is in your sketchbook's `libraries` folder:
+There are two ways to convert animations. Both write the same LottieMCU format.
+
+#### In the browser: Lottie Forge
+
+[**Lottie Forge**](https://github.com/jobitjoseph/LottieForge) is a companion web tool: a single HTML file that runs entirely in your
+browser, works offline and never uploads your files. Besides converting Lottie `.json` and
+`.lottie` files, it can create vector animations from images, GIFs, videos and SVGs. It exports a
+LottieMCU header (`.h`) or binary (`.lmc`) directly.
+
+- Its LottieMCU export is a JavaScript port of `lottie2mcu.py` (format `LMC1` 1.1.0). For
+  vector animations its output is byte-identical to the Python converter. Image layers are
+  traced into vector shapes first, so they are not stored as bitmaps.
+- The **LottieMCU lean** profile and the custom output size (for example 320 × 240) target small
+  displays.
+- A live check shows the binary size, the largest path (for `Config::maxPathVerts`) and the draw
+  item count (for `Config::maxItems`).
+- Image layers in a Lottie file can be converted to vector shapes, which usually saves a lot of
+  flash compared with stored bitmaps.
+
+#### On the command line: `lottie2mcu.py`
+
+`tools/lottie2mcu.py` is installed with the library. After a Library Manager install it is in your sketchbook's `libraries` folder:
 
 | OS | Location |
 |---|---|
@@ -88,6 +110,9 @@ python3 ~/Documents/Arduino/libraries/LottieMCU/tools/lottie2mcu.py my_anim.json
    ```
    python tools/lottie2mcu.py my_anim.json -o my_anim.h -n my_anim --size 320x240
    ```
+
+   Or open [Lottie Forge](https://github.com/jobitjoseph/LottieForge) in your browser, drop the file in, set the array name to
+   `my_anim` and click **.h**.
 
    `--size` is your display resolution. It only matters for animations with image layers
    (images are stored at the size they'll actually be shown), but it never hurts to pass it.
@@ -348,6 +373,8 @@ Pillow (`pip install pillow`), which is also used for higher-quality resampling 
 
 Images cost flash: a 240×240 display showing a few large images typically needs 50–150 KB.
 `--image-scale 0.5` halves the resolution (a quarter of the flash) if you need to save space.
+[Lottie Forge](https://github.com/jobitjoseph/LottieForge) can instead trace image layers into vector shapes, which is usually far
+smaller and stays sharp at any display size.
 Images used as track mattes contribute their rectangle (their transparency is ignored).
 
 ## How it was verified
